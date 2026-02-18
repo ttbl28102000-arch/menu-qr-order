@@ -8,8 +8,8 @@ st.set_page_config(page_title="Menu QR Order", page_icon="🍜")
 st.title("🍜 Menu Gọi Món Tự Động")
 
 # 2. Kết nối Google Sheets (Thay link của bạn vào đây)
-import streamlit as st
-from medical_gsheets_connection import GSheetsConnection # Hoặc thư viện bạn đang dùng
+url = https://docs.google.com/spreadsheets/d/1tgGWynu2yGgA3EyG5gx43qURdhduVDLYr-J7q1RqRO0/edit?pli=1&gid=0#gid=0
+conn = st.connection("gsheets", type=GSheetsConnection)
 
 # Đoạn code sửa lỗi private_key tự động
 secret_dict = st.secrets["connections"]["gsheets"].to_dict()
@@ -74,5 +74,6 @@ if 'cart' in st.session_state and len(st.session_state.cart) > 0:
         
         st.success("Đơn hàng đã được gửi! Chúc bạn ngon miệng.")
         st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt
+
 
 
