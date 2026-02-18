@@ -3,6 +3,10 @@ from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
 
+# Lấy số bàn từ QR
+params = st.query_params
+table_number = params.get("table", "Chưa xác định")
+
 # 1. Cấu hình trang web
 st.set_page_config(page_title="Menu QR Order", page_icon="🍜")
 st.title("🍜 Menu Gọi Món Tự Động")
@@ -68,6 +72,7 @@ if 'cart' in st.session_state and len(st.session_state.cart) > 0:
         
         st.success("Đơn hàng đã được gửi! Chúc bạn ngon miệng.")
         st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt
+
 
 
 
