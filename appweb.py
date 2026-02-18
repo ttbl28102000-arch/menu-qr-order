@@ -1,73 +1,36 @@
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
-from datetime import datetime
 
-# 1. Cấu hình trang web
-st.set_page_config(page_title="Menu QR Order", page_icon="🍜")
+# 1. CẤU HÌNH TRANG WEB
+st.set_page_config(page_title="Menu QR Order", layout="centered")
 st.title("🍜 Menu Gọi Món Tự Động")
 
-# 2. Kết nối Google Sheets (Thay link của bạn vào đây)
-import streamlit as st
-from streamlit_gsheets import GSheetsConnection
+# 2. ĐỊNH NGHĨA LINK SHEET (Thay link này bằng link file Sheet của bạn)
+# Link này phải là link bạn copy từ trình duyệt khi đang mở file Sheet
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1X6GzXW0Y_P6W5fO_Y_H8n9X_Y_P6W5fO_Y_H8n9X/edit#gid=0"
 
-# Kết nối với Google Sheets (Streamlit sẽ tự đọc từ Secrets)
+# 3. KẾT NỐI VỚI GOOGLE SHEETS
 conn = st.connection("gsheets", type=GSheetsConnection)
-# 3. Danh sách món ăn
-menu = {
-    "Phở Bò": 50000,
-    "Bún Chả": 45000,
-    "Cà Phê": 25000,
-    "Trà Chanh": 15000
-}
 
-# 4. Lấy số bàn từ URL (Ví dụ: myweb.com/?table=5)
-query_params = st.query_params
-table_number = query_params.get("table", "Chưa xác định")
-st.subheader(f"📍 Bàn số: {table_number}")
+# 4. ĐỌC DỮ LIỆU MENU
+try:
+    # Đọc dữ liệu từ Sheet
+    df = conn.read(spreadsheet=SHEET_URL)
+    st.success("Kết nối dữ liệu thành công!")
+    
+    # Hiển thị Menu (Ví dụ đơn giản)
+    st.subheader("Danh sách món ăn")
+    st.dataframe(df)
 
-# 5. Giao diện chọn món
-st.write("---")
-selected_items = []
-total_price = 0
+except Exception as e:
+    st.error(f"Lỗi kết nối: {e}")
+    st.info("Hãy kiểm tra lại Secrets và quyền chia sẻ của file Sheet.")
 
-for item, price in menu.items():
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        st.write(f"**{item}** - {price:,}đ")
-    with col2:
-        if st.button(f"Thêm", key=item):
-            selected_items.append(item)
-            # Lưu tạm vào session_state (bộ nhớ tạm của trình duyệt)
-            if 'cart' not in st.session_state:
-                st.session_state.cart = []
-            st.session_state.cart.append({"Mon": item, "Gia": price})
-
-# 6. Giỏ hàng và Gửi đơn
-if 'cart' in st.session_state and len(st.session_state.cart) > 0:
-    st.write("---")
-    st.subheader("🛒 Giỏ hàng của bạn")
-    df_cart = pd.DataFrame(st.session_state.cart)
-    st.table(df_cart)
-    total = df_cart["Gia"].sum()
-    st.write(f"### Tổng cộng: {total:,}đ")
-
-    if st.button("🚀 GỬI ĐƠN HÀNG"):
-        # Chuẩn bị dữ liệu lưu vào Google Sheets
-        new_order = pd.DataFrame([{
-            "Thoi_gian": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "Ban": table_number,
-            "Mon_an": ", ".join(df_cart["Mon"].tolist()),
-            "Tong_tien": total
-        }])
-        
-        # Gửi dữ liệu đi
-        existing_data = conn.read(spreadsheet=url)
-        updated_df = pd.concat([existing_data, new_order], ignore_index=True)
-        conn.update(spreadsheet=url, data=updated_df)
-        
-        st.success("Đơn hàng đã được gửi! Chúc bạn ngon miệng.")
-
+# 5. PHẦN XỬ LÝ ORDER (Bạn có thể thêm code xử lý nút bấm của bạn ở đây)
+# Khi bạn muốn ghi đơn hàng vào sheet, hãy dùng: 
+# conn.update(spreadsheet=SHEET_URL, data=your_new_dataframe)
         st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt
+
 
 
