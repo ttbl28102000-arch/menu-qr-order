@@ -8,7 +8,7 @@ st.set_page_config(page_title="Menu QR Order", page_icon="🍜")
 st.title("🍜 Menu Gọi Món Tự Động")
 
 # 2. Kết nối Google Sheets (Thay link của bạn vào đây)
-url = "DÁN_LINK_GOOGLE_SHEET_CỦA_BẠN_VÀO_ĐÂY"
+url = "https://docs.google.com/spreadsheets/d/1tgGWynu2yGgA3EyG5gx43qURdhduVDLYr-J7q1RqRO0/edit?usp=sharing"
 conn = st.connection("gsheets", type=GSheetsConnection)
 
 # 3. Danh sách món ăn
@@ -65,4 +65,5 @@ if 'cart' in st.session_state and len(st.session_state.cart) > 0:
         conn.update(spreadsheet=url, data=updated_df)
         
         st.success("Đơn hàng đã được gửi! Chúc bạn ngon miệng.")
+
         st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt
