@@ -8,17 +8,11 @@ st.set_page_config(page_title="Menu QR Order", page_icon="🍜")
 st.title("🍜 Menu Gọi Món Tự Động")
 
 # 2. Kết nối Google Sheets (Thay link của bạn vào đây)
-url = "https://docs.google.com/spreadsheets/d/1tgGWynu2yGgA3EyG5gx43qURdhduVDLYr-J7q1RqRO0/edit?pli=1&gid=0#gid=0"
+url = "https://docs.google.com/spreadsheets/d/1tgGWynu2yGgA3EyG5gx43qURdhduVDLYr-J7q1RqRO0/edit#gid=0"
+
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-# Đoạn code sửa lỗi private_key tự động
-secret_dict = st.secrets["connections"]["gsheets"].to_dict()
-if "private_key" in secret_dict:
-    # Tự động sửa lỗi dấu xuống dòng nếu có
-    secret_dict["private_key"] = secret_dict["private_key"].replace("\\n", "\n")
 
-# Kết nối bằng dictionary đã sửa
-conn = st.connection("gsheets", type=GSheetsConnection, **secret_dict)
 # 3. Danh sách món ăn
 menu = {
     "Phở Bò": 50000,
@@ -74,6 +68,7 @@ if 'cart' in st.session_state and len(st.session_state.cart) > 0:
         
         st.success("Đơn hàng đã được gửi! Chúc bạn ngon miệng.")
         st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt
+
 
 
 
