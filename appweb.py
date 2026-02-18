@@ -9,16 +9,10 @@ st.title("🍜 Menu Gọi Món Tự Động")
 
 # 2. Kết nối Google Sheets (Thay link của bạn vào đây)
 import streamlit as st
-from medical_gsheets_connection import GSheetsConnection # Hoặc thư viện bạn đang dùng
+from streamlit_gsheets import GSheetsConnection
 
-# Đoạn code sửa lỗi private_key tự động
-secret_dict = st.secrets["connections"]["gsheets"].to_dict()
-if "private_key" in secret_dict:
-    # Tự động sửa lỗi dấu xuống dòng nếu có
-    secret_dict["private_key"] = secret_dict["private_key"].replace("\\n", "\n")
-
-# Kết nối bằng dictionary đã sửa
-conn = st.connection("gsheets", type=GSheetsConnection, **secret_dict)
+# Kết nối với Google Sheets (Streamlit sẽ tự đọc từ Secrets)
+conn = st.connection("gsheets", type=GSheetsConnection)
 # 3. Danh sách món ăn
 menu = {
     "Phở Bò": 50000,
@@ -75,4 +69,5 @@ if 'cart' in st.session_state and len(st.session_state.cart) > 0:
         st.success("Đơn hàng đã được gửi! Chúc bạn ngon miệng.")
 
         st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt
+
 
