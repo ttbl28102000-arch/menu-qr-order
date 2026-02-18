@@ -10,6 +10,12 @@ table_number = params.get("table", "Chưa xác định")
 # 1. Cấu hình trang web
 st.set_page_config(page_title="Menu QR Order", page_icon="🍜")
 st.title("🍜 Menu Gọi Món Tự Động")
+# 4. Lấy số bàn từ URL (Ví dụ: myweb.com/?table=5)
+query_params = st.query_params
+table_number = query_params.get("table", "Chưa xác định")
+st.subheader(f"📍 Bàn số: {table_number}")
+
+
 
 # 2. Kết nối Google Sheets (Thay link của bạn vào đây)
 url = "https://docs.google.com/spreadsheets/d/1tgGWynu2yGgA3EyG5gx43qURdhduVDLYr-J7q1RqRO0/edit#gid=0"
@@ -25,10 +31,6 @@ menu = {
     "Trà Chanh": 15000
 }
 
-# 4. Lấy số bàn từ URL (Ví dụ: myweb.com/?table=5)
-query_params = st.query_params
-table_number = query_params.get("table", "Chưa xác định")
-st.subheader(f"📍 Bàn số: {table_number}")
 
 # 5. Giao diện chọn món
 st.write("---")
@@ -72,6 +74,7 @@ if 'cart' in st.session_state and len(st.session_state.cart) > 0:
         
         st.success("Đơn hàng đã được gửi! Chúc bạn ngon miệng.")
         st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt
+
 
 
 
