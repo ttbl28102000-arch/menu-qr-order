@@ -3,27 +3,22 @@ from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
 
-# Lấy số bàn từ QR
-params = st.query_params
-table_number = params.get("table", "Chưa xác định")
-
-# 1. Cấu hình trang web
+# 1️⃣ Cấu hình trang (PHẢI đặt đầu tiên)
 st.set_page_config(page_title="Menu QR Order", page_icon="🍜")
-st.title("🍜 Menu Gọi Món Tự Động")
-# 4. Lấy số bàn từ URL (Ví dụ: myweb.com/?table=5)
+
+# 2️⃣ Lấy số bàn từ QR URL
 query_params = st.query_params
 table_number = query_params.get("table", "Chưa xác định")
+
+# 3️⃣ Tiêu đề
+st.title("🍜 Menu Gọi Món Tự Động")
 st.subheader(f"📍 Bàn số: {table_number}")
 
-
-
-# 2. Kết nối Google Sheets (Thay link của bạn vào đây)
+# 4️⃣ Kết nối Google Sheets
 url = "https://docs.google.com/spreadsheets/d/1tgGWynu2yGgA3EyG5gx43qURdhduVDLYr-J7q1RqRO0/edit#gid=0"
-
 conn = st.connection("gsheets", type=GSheetsConnection)
 
-
-# 3. Danh sách món ăn
+# 5️⃣ Menu món ăn
 menu = {
     "Phở Bò": 50000,
     "Bún Chả": 45000,
@@ -74,6 +69,7 @@ if 'cart' in st.session_state and len(st.session_state.cart) > 0:
         
         st.success("Đơn hàng đã được gửi! Chúc bạn ngon miệng.")
         st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt
+
 
 
 
