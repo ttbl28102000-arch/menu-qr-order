@@ -7,7 +7,7 @@ st.set_page_config(page_title="Menu QR Order", layout="centered")
 st.title("🍜 Menu Gọi Món Tự Động")
 
 # 2. LINK GOOGLE SHEETS (Dán link file của bạn vào giữa dấu "")
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1X6GzXW0Y_P6W5fO_Y_H8n9X_Y_P6W5fO_Y_H8n9X/edit#gid=0"
+SHEET_URL = "https://docs.google.com/spreadsheets/d/1tgGWynu2yGgA3EyG5gx43qURdhduVDLYr-J7q1RqRO0/edit?usp=sharing"
 
 # 3. KẾT NỐI DỮ LIỆU
 conn = st.connection("gsheets", type=GSheetsConnection)
@@ -55,4 +55,5 @@ if st.session_state.cart:
             st.error(f"Lỗi khi gửi đơn: {ex}")
 else:
     st.info("Giỏ hàng đang trống.")
+
 
