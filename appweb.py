@@ -1,60 +1,78 @@
 import streamlit as st
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
+from datetime import datetime
 
-# 1. CẤU HÌNH TRANG
-st.set_page_config(page_title="Menu QR Order", layout="centered")
+# 1. Cấu hình trang web
+st.set_page_config(page_title="Menu QR Order", page_icon="🍜")
 st.title("🍜 Menu Gọi Món Tự Động")
 
-# 2. LINK GOOGLE SHEETS (Dán link file của bạn vào giữa dấu "")
-SHEET_URL = "https://docs.google.com/spreadsheets/d/1tgGWynu2yGgA3EyG5gx43qURdhduVDLYr-J7q1RqRO0/edit#gid=0"
+# 2. Kết nối Google Sheets (Thay link của bạn vào đây)
+import streamlit as st
+from medical_gsheets_connection import GSheetsConnection # Hoặc thư viện bạn đang dùng
 
-# 3. KẾT NỐI DỮ LIỆU
-conn = st.connection("gsheets", type=GSheetsConnection)
+# Đoạn code sửa lỗi private_key tự động
+secret_dict = st.secrets["connections"]["gsheets"].to_dict()
+if "private_key" in secret_dict:
+    # Tự động sửa lỗi dấu xuống dòng nếu có
+    secret_dict["private_key"] = secret_dict["private_key"].replace("\\n", "\n")
 
-# Khởi tạo giỏ hàng nếu chưa có
-if 'cart' not in st.session_state:
-    st.session_state.cart = []
+# Kết nối bằng dictionary đã sửa
+conn = st.connection("gsheets", type=GSheetsConnection, **secret_dict)
+# 3. Danh sách món ăn
+menu = {
+    "Phở Bò": 50000,
+    "Bún Chả": 45000,
+    "Cà Phê": 25000,
+    "Trà Chanh": 15000
+}
 
-# 4. ĐỌC DỮ LIỆU MENU
-try:
-    df = conn.read(spreadsheet=SHEET_URL)
-    st.subheader("Danh mục món ăn")
-    
-    # Hiển thị món ăn dạng danh sách đơn giản
-    for index, row in df.iterrows():
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            st.write(f"**{row['Mon']}** - {row['Gia']:,}đ")
-        with col2:
-            if st.button(f"Thêm", key=f"add_{index}"):
-                st.session_state.cart.append({"Mon": row['Mon'], "Gia": row['Gia']})
-                st.toast(f"Đã thêm {row['Mon']}")
+# 4. Lấy số bàn từ URL (Ví dụ: myweb.com/?table=5)
+query_params = st.query_params
+table_number = query_params.get("table", "Chưa xác định")
+st.subheader(f"📍 Bàn số: {table_number}")
 
-except Exception as e:
-    st.error(f"Chưa kết nối được với Sheets: {e}")
+# 5. Giao diện chọn món
+st.write("---")
+selected_items = []
+total_price = 0
 
-# 5. GIỎ HÀNG VÀ GỬI ĐƠN
-st.divider()
-st.subheader("🛒 Giỏ hàng của bạn")
+for item, price in menu.items():
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        st.write(f"**{item}** - {price:,}đ")
+    with col2:
+        if st.button(f"Thêm", key=item):
+            selected_items.append(item)
+            # Lưu tạm vào session_state (bộ nhớ tạm của trình duyệt)
+            if 'cart' not in st.session_state:
+                st.session_state.cart = []
+            st.session_state.cart.append({"Mon": item, "Gia": price})
 
-if st.session_state.cart:
-    cart_df = pd.DataFrame(st.session_state.cart)
-    st.table(cart_df)
-    total = cart_df['Gia'].sum()
+# 6. Giỏ hàng và Gửi đơn
+if 'cart' in st.session_state and len(st.session_state.cart) > 0:
+    st.write("---")
+    st.subheader("🛒 Giỏ hàng của bạn")
+    df_cart = pd.DataFrame(st.session_state.cart)
+    st.table(df_cart)
+    total = df_cart["Gia"].sum()
     st.write(f"### Tổng cộng: {total:,}đ")
 
     if st.button("🚀 GỬI ĐƠN HÀNG"):
-        try:
-            # Ghi dữ liệu vào sheet (Cần file Sheet có các cột tương ứng)
-            # conn.update(spreadsheet=SHEET_URL, data=cart_df)
-            st.success("Đơn hàng đã được gửi thành công!")
-            st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt (Dòng này không được thụt lề sai)
-            st.rerun()
-        except Exception as ex:
-            st.error(f"Lỗi khi gửi đơn: {ex}")
-else:
-    st.info("Giỏ hàng đang trống.")
-
+        # Chuẩn bị dữ liệu lưu vào Google Sheets
+        new_order = pd.DataFrame([{
+            "Thoi_gian": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "Ban": table_number,
+            "Mon_an": ", ".join(df_cart["Mon"].tolist()),
+            "Tong_tien": total
+        }])
+        
+        # Gửi dữ liệu đi
+        existing_data = conn.read(spreadsheet=url)
+        updated_df = pd.concat([existing_data, new_order], ignore_index=True)
+        conn.update(spreadsheet=url, data=updated_df)
+        
+        st.success("Đơn hàng đã được gửi! Chúc bạn ngon miệng.")
+        st.session_state.cart = [] # Xóa giỏ hàng sau khi đặt
 
 
